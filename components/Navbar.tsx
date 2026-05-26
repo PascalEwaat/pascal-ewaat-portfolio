@@ -22,7 +22,9 @@ export default function Navbar() {
   // Prevent body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   return (
@@ -65,31 +67,39 @@ export default function Navbar() {
           LET&apos;S TALK
         </a>
 
-        {/* ── Mobile hamburger ── */}
+        {/* ── Mobile hamburger ──
+            Uses absolute-positioned spans so transforms never get clipped
+            by the flex container's bounds.
+            Container: 40×40px, center Y = 20px → span top when centred = 19px.
+            Closed gaps: lines at top-[10px], top-[19px], top-[28px] (9px apart).
+        ── */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8"
+          className="md:hidden relative w-10 h-10 overflow-visible"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
+          {/* Line 1 */}
           <span
-            className={`block w-5 h-[1.5px] bg-black transition-all duration-300 origin-center ${
-              menuOpen ? "rotate-45 translate-y-[3.25px]" : ""
+            className={`absolute left-[5px] h-[1.5px] w-5 bg-black transition-all duration-300 origin-center ${
+              menuOpen ? "top-[19px] rotate-45" : "top-[10px]"
             }`}
           />
+          {/* Line 2 (middle — fades out when open) */}
           <span
-            className={`block w-5 h-[1.5px] bg-black transition-all duration-300 ${
-              menuOpen ? "opacity-0 scale-x-0" : ""
+            className={`absolute left-[5px] top-[19px] h-[1.5px] w-5 bg-black transition-all duration-300 ${
+              menuOpen ? "opacity-0 scale-x-0" : "opacity-100"
             }`}
           />
+          {/* Line 3 */}
           <span
-            className={`block w-5 h-[1.5px] bg-black transition-all duration-300 origin-center ${
-              menuOpen ? "-rotate-45 -translate-y-[3.25px]" : ""
+            className={`absolute left-[5px] h-[1.5px] w-5 bg-black transition-all duration-300 origin-center ${
+              menuOpen ? "top-[19px] -rotate-45" : "top-[28px]"
             }`}
           />
         </button>
       </nav>
 
-      {/* ── Mobile full-screen menu overlay ── */}
+      {/* ── Mobile full-screen menu overlay (z-40, below nav at z-50) ── */}
       <div
         className={`md:hidden fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-8 transition-opacity duration-300 ${
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -112,7 +122,7 @@ export default function Navbar() {
           );
         })}
 
-        {/* Let's Talk — styled as a button */}
+        {/* Let's Talk — styled as a filled button */}
         <a
           href="mailto:ewaatpascal@gmail.com"
           onClick={() => setMenuOpen(false)}
